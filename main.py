@@ -53,9 +53,11 @@ def check_liquidity(nft_index: list[int]):
         try:
             position = contract.functions.positions(index).call()
             liquidity = position[7]
+            token1_name = get_token_name(position[2])
+            token2_name = get_token_name(position[3])
             if (liquidity > 0):
                 arr += [index]
-                print(f"    # {index} = {liquidity}")
+                print(f"    # {index} Pair {token1_name}/{token2_name} = {liquidity}")
                 print(f"🟢 Open https://pancakeswap.finance/liquidity/{index}?tokenId={index}&chain=bsc")
         except Exception as e:
             print(f"Error fetching position for # {index} : {e}")
@@ -67,7 +69,8 @@ def get_token_name(address: str) -> str:
         checksum_address = w3.to_checksum_address(address)
         data = w3.eth.call({"to": checksum_address, "data": "0x06fdde03"})
         name = w3.to_text(data)
-        return name
+        name = name.replace("\x00", "").replace("\n", "").replace("\r", "").strip()
+        return name if name else "?Unknown?"
     except Exception as e:
         return "?Unknown?"
 
