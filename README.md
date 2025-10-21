@@ -29,6 +29,7 @@ python3 main.py https://bsc-dataseed.binance.org 0xYourWalletAddress
 
 - [PancakeSwap V3 Documentation](https://developer.pancakeswap.finance/contracts/v3/pancakev3pool)
 - [Nonfungible Position Manager on BscScan](https://bscscan.com/address/0x46a15b0b27311cedf172ab29e4f4766fbe7f4364)
+- [Pancake v3 github repo](https://github.com/pancakeswap/pancake-v3-contracts)
 
 ## Output
 
@@ -126,3 +127,33 @@ It updates the position's fees owed before collecting tokens.
         emit Collect(params.tokenId, recipient, amount0Collect, amount1Collect);
     }
 ```
+
+## About Position Redeem
+
+To redeem a position, use the multicall() function with the following sequence:
+```
+{
+    "func": "multicall",
+    "params": [
+        [
+            "0c49ccbe......",
+            "fc6f7865......"
+        ]
+    ]
+}
+```
+
+### Functions
+- 0c49ccbe → decreaseLiquidity()
+- fc6f7865 → collect()
+
+#### decreaseLiquidity parameters
+0c49ccbe + tokenId + liquidity + amount0Min + amount1Min + deadline
+
+| Parameter   | Description |
+|--------------|-------------|
+| `tokenId`    | NFT position index. |
+| `liquidity`  | Retrieved from the positions getter contract call. |
+| `amount0Min` | Can be set to `1` (used only for preview calls). |
+| `amount1Min` | Can be set to `1` (used only for preview calls). |
+| `deadline`   | Current UNIX timestamp + 20 minutes. |
