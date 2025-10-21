@@ -61,10 +61,10 @@ def check_liquidity(nft_index: list[int]):
                 print(f"    # {index} Pair {token1_name}/{token2_name} = {liquidity}")
                 print(f"🟢 Open https://pancakeswap.finance/liquidity/{index}?tokenId={index}&chain=bsc")
                 show_waiting_rewards(index, position)
+                print('--------------------')
         except Exception as e:
             print(f"Error fetching position for # {index} : {e}")
             exit()
-        print("==================\n")
     return arr
 
 def show_waiting_rewards(index, position):
@@ -108,11 +108,8 @@ def get_token_decimals(address: str) -> int:
         return 1
 
 if __name__ == "__main__":
-    print(get_token_name("0x000Ae314E2A2172a039B26378814C252734f556A"))
     print(f"=== Wallet: {WALLET_ADDRESS} ===")
     print(f"=== Target: {BSC_RPC_URL} ===\n")
     nft_balance = get_nb_positions()
     nft_index = get_individual_index(nft_balance)
     nft_index_active = check_liquidity(nft_index)
-
-    print("continue")
