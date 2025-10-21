@@ -48,6 +48,7 @@ def get_individual_index(nft_balance: int):
 
 def check_liquidity(nft_index: list[int]):
     arr = []
+    print("\n==================")
     print("Liquidity")
     for index in nft_index:
         try:
@@ -59,10 +60,32 @@ def check_liquidity(nft_index: list[int]):
                 arr += [index]
                 print(f"    # {index} Pair {token1_name}/{token2_name} = {liquidity}")
                 print(f"🟢 Open https://pancakeswap.finance/liquidity/{index}?tokenId={index}&chain=bsc")
+                show_waiting_rewards(index, position)
         except Exception as e:
             print(f"Error fetching position for # {index} : {e}")
             exit()
+        print("==================\n")
     return arr
+
+def show_waiting_rewards(index, position):
+    try:
+        token1_name = get_token_name(position[2])
+        token2_name = get_token_name(position[3])
+        token1_decimals = get_token_decimals(position[2])
+        token2_decimals = get_token_decimals(position[3])
+        params = (
+            index,  # tokenId
+            WALLET_ADDRESS,  # recipient
+            340282366920938463463374607431768211455,  # amount0Max
+            340282366920938463463374607431768211455   # amount1Max
+        )
+        result = contract.functions.collect(params).call({"from": WALLET_ADDRESS})
+        print("Rewards :")
+        print(f"    + {result[0]/(10 ** token1_decimals)} {token1_name}")
+        print(f"    + {result[1]/(10 ** token2_decimals)} {token2_name}")
+    except Exception as e:
+        print(f"Error fetching rewards for # {index} : {e}")
+        exit()
 
 def get_token_name(address: str) -> str:
     try:
@@ -74,7 +97,15 @@ def get_token_name(address: str) -> str:
     except Exception as e:
         return "?Unknown?"
 
-
+def get_token_decimals(address: str) -> int:
+    try:
+        checksum_address = w3.to_checksum_address(address)
+        data = w3.eth.call({"to": checksum_address, "data": "0x313ce567"})
+        decimals = int.from_bytes(data, byteorder='big')
+        return decimals
+    except Exception:
+        print("Warning: Error to fetch the token decimal for "+address)
+        return 1
 
 if __name__ == "__main__":
     print(get_token_name("0x000Ae314E2A2172a039B26378814C252734f556A"))
