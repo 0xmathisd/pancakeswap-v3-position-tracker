@@ -6,7 +6,7 @@ python3 -m venv venv
 source venv/bin/activate
 venv\Scripts\activate
 pip install web3
-python3 main.py
+python3 main.py https://bsc-dataseed.binance.org [EVM_EOA_ADDRESS]
 ```
 
 
