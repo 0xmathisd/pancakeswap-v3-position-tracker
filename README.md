@@ -44,11 +44,14 @@ Position NFT owned: 3
 
 ==================
 Liquidity
-    # 4859377 Pair Flōki/Tether USD = 65826776832165845248628
+    # 4859377 Pair Flōki/Tether USD = 88225670081290462259399
 🟢 Open https://pancakeswap.finance/liquidity/4859377?tokenId=4859377&chain=bsc
+Total Liquidity + Rewards :
+     + 848558.9673777826 Flōki
+     + 5074.560332704775 Tether USD
 Rewards :
-    + 88.52047257667839 Flōki
-    + 0.06689805046487828 Tether USD
+    + 8615.043274687068 Flōki
+    + 71.04810791889386 Tether USD
 --------------------
 ```
 
