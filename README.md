@@ -18,11 +18,11 @@ pip install web3
 ## Usage
 
 ```bash
-python3 main.py <BSC_NODE_URL> <WALLET_ADDRESS>
-
+python3 position_tracker.py <BSC_NODE_URL> <WALLET_ADDRESS> <opt:[INDEX]>
 ```
+
 ```bash
-python3 main.py https://bsc-dataseed.binance.org 0xYourWalletAddress
+python3 position_tracker.py https://bsc-dataseed.binance.org 0xYourWalletAddress 75632,14568
 ```
 
 ## Resources
@@ -30,6 +30,7 @@ python3 main.py https://bsc-dataseed.binance.org 0xYourWalletAddress
 - [PancakeSwap V3 Documentation](https://developer.pancakeswap.finance/contracts/v3/pancakev3pool)
 - [Nonfungible Position Manager on BscScan](https://bscscan.com/address/0x46a15b0b27311cedf172ab29e4f4766fbe7f4364)
 - [Pancake v3 github repo](https://github.com/pancakeswap/pancake-v3-contracts)
+- [How Pancake V3 Pool and Farm works with visualization](https://medium.com/@0xape/how-pancake-v3-farm-works-with-visualization-235e5e25d701)
 
 ## Output
 

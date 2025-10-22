@@ -3,9 +3,25 @@ import json
 import sys
 import time
 
+''' USAGE (readme for further info.)
+python3 position_tracker.py <BSC_NODE_URL> <WALLET_ADDRESS> <opt:[index]>
+'''
+
 BSC_RPC_URL = sys.argv[1]
+print(f"=== Network: {BSC_RPC_URL}")
+    
 # EVM EOA TO TRACK
 WALLET_ADDRESS = sys.argv[2]
+print(f"=== Wallet: {WALLET_ADDRESS}")
+
+NFT_INDEX = "all"
+if len(sys.argv) > 3:
+    arg = sys.argv[3].replace("#", "")
+    try:
+        NFT_INDEX = [int(x) for x in arg.split(",")]
+    except ValueError:
+        NFT_INDEX = [arg]
+    print(f"=== Target index: {NFT_INDEX} ===")
 
 # Pancake V3 Positions NFT-V1
 CONTRACT_ADDRESS = "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364"
@@ -22,14 +38,12 @@ contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
 
 # flexible var
 nft_balance = 0
-nft_index = []
-nft_index_active = []
 
 
 def get_nb_positions():
     try:
         balance = contract.functions.balanceOf(WALLET_ADDRESS).call()
-        print(f"Position NFT owned: {balance}")
+        print(f"Total position owned: {balance}")
         return balance
     except Exception as e:
         print(f"Error fetching balance: {e}")
@@ -47,31 +61,29 @@ def get_individual_index(nft_balance: int):
             exit()
     return arr
 
-def check_liquidity(nft_index: list[int]):
+def check_liquidity_and_display(nft_index: list[int]):
     arr = []
-    print("\n==================")
-    print("Liquidity")
     for index in nft_index:
         try:
             position = contract.functions.positions(index).call()
             liquidity = position[7]
-            token1_name = get_token_name(position[2])
-            token2_name = get_token_name(position[3])
+            token0_name = get_token_name(position[2])
+            token1_name = get_token_name(position[3])
             if (liquidity > 0):
                 arr += [index]
-                print(f"    # {index} Pair {token1_name}/{token2_name} = {liquidity}")
-                print(f"🟢 Open https://pancakeswap.finance/liquidity/{index}?tokenId={index}&chain=bsc")
-                token1_decimals = get_token_decimals(position[2])
-                token2_decimals = get_token_decimals(position[3])
-                show_current_liquidity(index, position, token1_name, token2_name, token1_decimals, token2_decimals)
-                show_waiting_rewards(index, position, token1_name, token2_name, token1_decimals, token2_decimals)
-                print('--------------------')
+                print(f"Liquidity #{index} -> {token0_name}/{token1_name}")
+                print(f"🟢 Open: https://pancakeswap.finance/liquidity/{index}?tokenId={index}&chain=bsc")
+                token0_decimals = get_token_decimals(position[2])
+                token1_decimals = get_token_decimals(position[3])
+                show_current_liquidity(index, position, token0_name, token1_name, token0_decimals, token1_decimals)
+                show_waiting_rewards(index, position, token0_name, token1_name, token0_decimals, token1_decimals)
+                
         except Exception as e:
             print(f"Error fetching position for # {index} : {e}")
             exit()
     return arr
 
-def show_waiting_rewards(index, position, token1_name, token2_name, token1_decimals, token2_decimals):
+def show_waiting_rewards(index, position, token0_name, token1_name, token0_decimals, token1_decimals):
     try:
         params = (
             index,  # tokenId
@@ -80,23 +92,14 @@ def show_waiting_rewards(index, position, token1_name, token2_name, token1_decim
             340282366920938463463374607431768211455   # amount1Max
         )
         result = contract.functions.collect(params).call({"from": WALLET_ADDRESS})
-        print("Rewards :")
-        print(f"    + {result[0]/(10 ** token1_decimals)} {token1_name}")
-        print(f"    + {result[1]/(10 ** token2_decimals)} {token2_name}")
+        print("  Unclaimed Fees :")
+        print(f"    + {result[0]/(10 ** token0_decimals)} {token0_name}")
+        print(f"    + {result[1]/(10 ** token1_decimals)} {token1_name}")
     except Exception as e:
         print(f"Error fetching rewards for # {index} : {e}")
         exit()
 
-def to_hex64(n: int) -> str:
-    if not isinstance(n, int):
-        raise TypeError("n must be an integer.")
-    if n < 0:
-        raise ValueError("n must be non-negative.")
-    if n >= 16**64:
-        raise ValueError("n is too large to fit in 64 hexadecimal characters (>= 16**64).")
-    return f"{n:064x}"
-
-def show_current_liquidity(index, position, token1_name, token2_name, token1_decimals, token2_decimals):
+def show_current_liquidity(index, position, token0_name, token1_name, token0_decimals, token1_decimals):
     try:
         params = [
             bytes.fromhex("0c49ccbe"+to_hex64(index)+to_hex64(position[7])+to_hex64(1)+to_hex64(1)+to_hex64(int(time.time()+ 20 * 60)))
@@ -106,23 +109,23 @@ def show_current_liquidity(index, position, token1_name, token2_name, token1_dec
 
         decoded_results = []
         for ret_bytes in result:
-            # décoder tous les uint256 (32 bytes chacun)
             values = [int.from_bytes(ret_bytes[i:i+32], "big") for i in range(0, len(ret_bytes), 32)]
             decoded_results.append(values)
 
-        # ne prendre que le dernier élément (la dernière fonction appelée)
         collect_vals = decoded_results[-1]
         amount0, amount1 = collect_vals[:2]
 
-        print(f"Total Liquidity + Rewards :")
-        print(f"     + {amount0/(10 ** token1_decimals)} {token1_name} ")
-        print(f"     + {amount1/(10 ** token2_decimals)} {token2_name}")
+        print("  Liquidity :")
+        print(f"     + {amount0/(10 ** token0_decimals)} {token0_name} ")
+        print(f"     + {amount1/(10 ** token1_decimals)} {token1_name}")
 
 
     except Exception as e:
         print(f"Error fetching the current liquidity for # {index} : {e}")
         exit()
 
+
+# Utility func
 def get_token_name(address: str) -> str:
     try:
         checksum_address = w3.to_checksum_address(address)
@@ -143,9 +146,20 @@ def get_token_decimals(address: str) -> int:
         print("Warning: Error to fetch the token decimal for "+address)
         return 1
 
+def to_hex64(n: int) -> str:
+    if not isinstance(n, int):
+        raise TypeError("n must be an integer.")
+    if n < 0:
+        raise ValueError("n must be non-negative.")
+    if n >= 16**64:
+        raise ValueError("n is too large to fit in 64 hexadecimal characters (>= 16**64).")
+    return f"{n:064x}"
+
+
 if __name__ == "__main__":
-    print(f"=== Wallet: {WALLET_ADDRESS} ===")
-    print(f"=== Target: {BSC_RPC_URL} ===\n")
-    nft_balance = get_nb_positions()
-    nft_index = get_individual_index(nft_balance)
-    nft_index_active = check_liquidity(nft_index)
+    print('-'*54)
+    if (NFT_INDEX=='all'):
+        nft_balance = get_nb_positions()
+        NFT_INDEX = get_individual_index(nft_balance)
+        print('-'*54)
+    check_liquidity_and_display(NFT_INDEX)
