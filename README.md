@@ -1,12 +1,15 @@
 # PancakeSwap V3 Position Tracker
 
-This script reads a wallet's liquidity positions on PancakeSwap V3.
+This repository includes utilities for analyzing and simulating PancakeSwap V3 liquidity positions.
+It provides:
+- **position_tracker.py** — reads all active liquidity positions of a wallet
+- **tick_amm_model.py** — computes tickLower and tickUpper boundaries based on price evolution
 
 ## Requirements
 
 - Python 3
 - `web3` library
-- `json` for ABI purposes, `sys` for argv
+- `json` for ABI purposes, `sys` for argv, `math`
 
 ```bash
 python3 -m venv venv
@@ -15,7 +18,7 @@ venv\Scripts\activate      # Windows
 pip install web3
 ```
 
-## Usage
+## Usage: position_tracker
 
 ```bash
 python3 position_tracker.py <BSC_NODE_URL> <WALLET_ADDRESS> <opt:[INDEX]>
@@ -35,24 +38,24 @@ python3 position_tracker.py https://bsc-dataseed.binance.org 0xYourWalletAddress
 ## Output
 
 ```
-=== Wallet: 0x45D9717F599e5284d73952d91F5FEBC9e333499b ===
-=== Target: https://bsc-dataseed.binance.org ===
-
-Position NFT owned: 3
+=== Network: https://bsc-dataseed.binance.org
+=== Wallet: 0x45D9717F599e5284d73952d91F5FEBC9e333499b
+------------------------------------------------------
+Total position owned: 5
     # 1: 4859191
     # 2: 4859317
     # 3: 4859377
-
-==================
-Liquidity
-    # 4859377 Pair Flōki/Tether USD = 88225670081290462259399
-🟢 Open https://pancakeswap.finance/liquidity/4859377?tokenId=4859377&chain=bsc
-Total Liquidity + Rewards :
-     + 848558.9673777826 Flōki
-     + 5074.560332704775 Tether USD
-Rewards :
-    + 8615.043274687068 Flōki
-    + 71.04810791889386 Tether USD
+    # 4: 4884435
+    # 5: 4886127
+------------------------------------------------------
+Liquidity #4859377 -> Flōki/Tether USD
+🟢 Open: https://pancakeswap.finance/liquidity/4859377?tokenId=4859377&chain=bsc
+  Liquidity :
+     + 1051971.51660759 Flōki 
+     + 5601.96760496708 Tether USD
+  Unclaimed Fees :
+    + 614.339812225441 Flōki
+    + 4.81359573428863 Tether USD
 --------------------
 ```
 
@@ -161,3 +164,4 @@ To redeem a position, use the multicall() function with the following sequence:
 | `amount0Min` | Can be set to `1` (used only for preview calls). |
 | `amount1Min` | Can be set to `1` (used only for preview calls). |
 | `deadline`   | Current UNIX timestamp + 20 minutes. |
+
