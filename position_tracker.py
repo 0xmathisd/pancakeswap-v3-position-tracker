@@ -24,9 +24,12 @@ if len(sys.argv) > 3:
     print(f"=== Target index: {NFT_INDEX} ===")
 
 # Pancake V3 Positions NFT-V1
-CONTRACT_ADDRESS = "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364"
+V3_POSITION_CA = "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364"
 with open("abi.json", "r") as f:
     ABI = json.load(f)
+
+# Pancake V3 Factory
+V3_FACTORY_CA = "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865"
 
 # BSC Connection
 w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
@@ -34,7 +37,7 @@ if not w3.is_connected():
     raise Exception("❌ Connection error BSC")
 
 # Contract init.
-contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
+contract = w3.eth.contract(address=V3_POSITION_CA, abi=ABI)
 
 # flexible var
 nft_balance = 0
