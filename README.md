@@ -2,14 +2,16 @@
 
 This repository includes utilities for analyzing and simulating PancakeSwap V3 liquidity positions.
 It provides:
-- **position_tracker.py** — reads all active liquidity positions of a wallet
-- **tick_amm_model.py** — computes tickLower and tickUpper boundaries based on price evolution
+- **position_tracker.py** — Fully decentralized liquidity positions reader (allocation, fees unclaimed, t0/t1 ratio)
+- **tick_amm_model.py** — Computes tickLower and tickUpper boundaries based on price evolution to control your impermanent loss
+- **reader_for_liquidity_positions.py** — Analyse cited UniswapV3/Pancakev3 pool address to retrieve each ratio t0/t1 and pool fees
+- **tick_to_price.py** — Pancake math: tick -> asset price ?
 
 ## Requirements
 
 - Python 3
 - `web3` library
-- `json` for ABI purposes, `sys` for argv, `math`
+- `json` for ABI purposes, `sys` for argv, `eth_abi` for decode, `math` & `time`
 
 ```bash
 python3 -m venv venv
@@ -41,21 +43,19 @@ python3 position_tracker.py https://bsc-dataseed.binance.org 0xYourWalletAddress
 === Network: https://bsc-dataseed.binance.org
 === Wallet: 0x45D9717F599e5284d73952d91F5FEBC9e333499b
 ------------------------------------------------------
-Total position owned: 5
+Total position owned: 3
     # 1: 4859191
     # 2: 4859317
     # 3: 4859377
-    # 4: 4884435
-    # 5: 4886127
 ------------------------------------------------------
-Liquidity #4859377 -> Flōki/Tether USD
+Liquidity #4859377 -> Flōki/Tether USD | 1 Flōki = 0.0044270182488683465 Tether USD
 🟢 Open: https://pancakeswap.finance/liquidity/4859377?tokenId=4859377&chain=bsc
   Liquidity :
-     + 1051971.51660759 Flōki 
-     + 5601.96760496708 Tether USD
+     + 1153392.7444025986 Flōki      (5106.09073 Tether USD)
+     + 2984.281303159902 Tether USD
   Unclaimed Fees :
-    + 614.339812225441 Flōki
-    + 4.81359573428863 Tether USD
+    + 1412.3001791409445 Flōki      (6.25228 Tether USD)
+    + 5.596067406114151 Tether USD
 --------------------
 ```
 
