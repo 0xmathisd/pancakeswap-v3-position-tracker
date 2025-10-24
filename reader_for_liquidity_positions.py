@@ -17,7 +17,7 @@ print(f"=== Network: {BSC_RPC_URL}")
 
 web3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
 if not web3.is_connected():
-    raise Exception("❌ Unable to connect to the BSC node")
+    raise Exception("❌ Unable to connect to the node")
 
 SLOT0_SELECTOR = "0x3850c7bd"   # slot0()
 FEE_SELECTOR = "0xddca3f43"     # fee()

@@ -91,6 +91,7 @@ def check_liquidity_and_display(nft_index: list[int]):
             print(f"Error fetching position for # {index} : {e}")
             exit()
     return arr
+    
 def show_current_liquidity(index, position, token0_name, token1_name, token0_decimals, token1_decimals, price_ratio):
     try:
         params = [

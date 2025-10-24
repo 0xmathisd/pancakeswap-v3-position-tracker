@@ -6,7 +6,7 @@ It provides:
 - **`tick_amm_model.py`** — Computes `tickLower` and `tickUpper` boundaries based on price evolution to help manage impermanent loss.  
 - **`reader_for_liquidity_positions.py`** — Analyzes any UniswapV3/PancakeV3 pool address to retrieve token ratios (t0/t1) and pool fees.  
 - **`tick_to_price.py`** — PancakeSwap math utility: convert `tick` → asset price.
-- **`save_current_position_in_csv.py`** — Logs the pool position: liquidity, fees, IL/PL, stats, intended to be scheduled with cron for periodic tracking.
+- **`save_current_position_in_csv.py`** — Logs the pool position: liquidity, fees, $, intended to be scheduled with cron for periodic tracking.
 
 ## Requirements
 
