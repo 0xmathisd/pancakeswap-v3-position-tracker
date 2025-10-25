@@ -11,6 +11,10 @@ from web3 import Web3
 python3 save_current_position_in_csv.py <BSC_NODE_URL> <WALLET_ADDRESS> <V3_NFT_INDEX>
 '''
 
+DECIMAL_ROUND_t0 = 2
+DECIMAL_ROUND_t1 = 2
+DECIMAL_RATE = 7
+
 CSV_FILE = "position_history.csv"
 
 BSC_RPC_URL = sys.argv[1]
@@ -54,8 +58,13 @@ def get_token_name(address: str) -> str:
     try:
         checksum_address = w3.to_checksum_address(address)
         data = w3.eth.call({"to": checksum_address, "data": "0x06fdde03"})
-        name = w3.to_text(data)
-        name = name.replace("\x00", "").replace("\n", "").replace("\r", "").strip()
+
+        data = data.rstrip(b'\x00').lstrip(b'\x00')
+
+        name = data.decode('utf-8', errors='ignore').strip()
+
+        name = ''.join(ch for ch in name if ch.isprintable())
+
         return name if name else "?Unknown?"
     except Exception as e:
         return "?Unknown?"
@@ -96,7 +105,7 @@ def check_liquidity_and_display(nft_index: list[int]):
 
                 print(f"Liquidity #{index} -> {token0_name}/{token1_name} | 1 {token0_name} = {price_ratio} {token1_name}")
                 data['t0_t1_name'] = f"{token0_name}/{token1_name}"
-                data['rate'] = price_ratio
+                data['rate'] = round(price_ratio, DECIMAL_RATE)
                 print(f"🟢 Open: https://pancakeswap.finance/liquidity/{index}?tokenId={index}&chain=bsc")
                 token0_decimals = get_token_decimals(position[2])
                 token1_decimals = get_token_decimals(position[3])
@@ -129,9 +138,9 @@ def show_current_liquidity(index, position, token0_name, token1_name, token0_dec
         print("  Liquidity :")
         print(f"     + {amount0} {token0_name}      ({(price_ratio*amount0):.5f} {token1_name})")
         print(f"     + {amount1} {token1_name}")
-        data['t0'] = amount0
-        data['t1'] = amount1
-        data['total_value'] = (price_ratio*amount0) + (amount1)
+        data['t0'] = round(amount0, DECIMAL_ROUND_t0)
+        data['t1'] = round(amount1, DECIMAL_ROUND_t1)
+        data['total_value'] = round((price_ratio*amount0) + (amount1), DECIMAL_ROUND_t1)
 
     except Exception as e:
         print(f"Error fetching the current liquidity for # {index} : {e}")
@@ -150,9 +159,9 @@ def show_waiting_rewards(index, position, token0_name, token1_name, token0_decim
         print("  Unclaimed Fees :")
         print(f"    + {result[0]} {token0_name}      ({(price_ratio*result[0]):.5f} {token1_name})")
         print(f"    + {result[1]} {token1_name}")
-        data['t0_fees'] = result[0]
-        data['t1_fees'] = result[1]
-        data['unclaimed'] = (price_ratio*result[0]) + (result[1])
+        data['t0_fees'] = round(result[0], DECIMAL_ROUND_t0)
+        data['t1_fees'] = round(result[1], DECIMAL_ROUND_t1)
+        data['unclaimed'] = round((price_ratio*result[0]) + (result[1]), DECIMAL_ROUND_t1)
     except Exception as e:
         print(f"Error fetching rewards for # {index} : {e}")
         exit()
@@ -216,7 +225,7 @@ columns = [
 ]
 
 unix_time = int(time.time())
-readable_time_utc0 = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+readable_time_utc0 = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
 
 row = {
     "unix_time": unix_time,

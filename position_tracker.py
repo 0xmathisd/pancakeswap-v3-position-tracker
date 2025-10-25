@@ -181,8 +181,13 @@ def get_token_name(address: str) -> str:
     try:
         checksum_address = w3.to_checksum_address(address)
         data = w3.eth.call({"to": checksum_address, "data": "0x06fdde03"})
-        name = w3.to_text(data)
-        name = name.replace("\x00", "").replace("\n", "").replace("\r", "").strip()
+
+        data = data.rstrip(b'\x00').lstrip(b'\x00')
+
+        name = data.decode('utf-8', errors='ignore').strip()
+
+        name = ''.join(ch for ch in name if ch.isprintable())
+
         return name if name else "?Unknown?"
     except Exception as e:
         return "?Unknown?"
