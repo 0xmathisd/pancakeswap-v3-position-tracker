@@ -16,7 +16,7 @@ if not web3.is_connected():
     raise Exception("❌ Unable to connect to the node")
 
 SLOT0_SELECTOR = "0x3850c7bd"   # slot0()
-FEE_SELECTOR = "0xddca3f43"     # fee()
+FEE_SELECTOR = "0xddca3f43"     # fee() 
 
 pool_values = {addr: 0.0 for addr in POOL_ADDRESSES}
 while 1:
